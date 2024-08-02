@@ -1,27 +1,41 @@
 #include "Logger.h"
 
 Logger::Logger()
-    :m_FileName("log.txt")
+    :m_Location(Location::DISABLED)
 {
-    init();
+    if(!init()) std::cout << "Error! -> Logger::Logger" << std::endl;
 }
 
-Logger::Logger(const std::string &fileName)
-    :m_FileName(fileName.substr((int)fileName.size()-4,4)!=".txt" ? fileName : fileName + ".txt")
+Logger::Logger(const Location& location)
+    :m_FileName("log.txt"),m_Location(location)
+{
+    if(!init()) std::cout << "Error! -> Logger::Logger" << std::endl;
+}
+
+Logger::Logger(const std::string &fileName,const Location& location)
+    :m_FileName(fileName.substr((int)fileName.size()-4,4)!=".txt" ? fileName : fileName + ".txt"),
+     m_Location(location)
 {   
-    init();
+    if(!init()) std::cout << "Error! -> Logger::Logger" <<std::endl;
 }
 
 Logger::~Logger(){
-    log("====================LOG FILE END======================\n");
+    log("====================LOG FILE END======================");
+    m_OutStream << '\n';
+    m_OutStream.close();
 }
 
 bool Logger::init()
 {
     /*
-        Output Stream with appending
+        Output Stream with appending into text file
     */
-    m_outstream.open(m_FileName, std::ios_base::app);         
+    if(m_Location == Location::DISABLED) return false;
+    if(m_Location == Location::DATABASE) return false;   //Change later
+    m_OutStream.open(m_FileName, std::ios_base::app);    
+    if(!m_OutStream.is_open()) return false;
+
+    m_ClassName = "Logger"; 
     log("====================LOG FILE START====================");
     return true;
 }
@@ -33,14 +47,20 @@ bool Logger::log()
 
 bool Logger::log(const std::string& str)
 {
-    return log(str, "\n");
+    return log({str});
 }
 
-bool Logger::log(const std::string& str, const std::string& end)
+bool Logger::log(const std::initializer_list<std::string> &list_str)
 {
     /*
         Gets the current time and outputs in the log file 
     */
+    if(m_Location == Location::DISABLED) return true;
+    if(m_Location == Location::DATABASE) return true;     //Change later
+    if(!m_OutStream.is_open()){
+        std::cout << "Error-> Logger::log!" <<std::endl;
+        return false;
+    }
     time_t now = time(0); 
     tm* timeinfo = localtime(&now); 
     char timestamp[20]; 
@@ -50,8 +70,17 @@ bool Logger::log(const std::string& str, const std::string& end)
         "%Y-%m-%d %H:%M:%S", 
         timeinfo
         ); 
-
-    m_outstream  << timestamp << " -> " << str << end;
-    flush(m_outstream);
-    return true;
+    
+    m_OutStream  << timestamp << " -> ";
+    for(int i=0; i<(int)list_str.size(); i++){
+        for(auto const &c: *(list_str.begin()+i)){
+            if(c!='\n')    
+                m_OutStream << c;
+        }
+        if(i!=int(list_str.size())-1)
+            m_OutStream << " || ";
+    }
+    m_OutStream << '\n';
+    flush(m_OutStream);
+    return true; 
 }
