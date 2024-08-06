@@ -6,13 +6,13 @@
 #include <string>    // for dealing with names
 #include <ctime>     // for writing time 
 
-enum Location{
-    DISABLED,
-    TEXT_FILE,
-    DATABASE
-};
-
 class Logger{
+public:
+    enum Location{
+        DISABLED,
+        TEXT_FILE,
+        DATABASE
+    };
 private:
     const std::string m_FileName;   //do we need static?
     std::ofstream m_OutStream;
@@ -24,6 +24,7 @@ public:
     Logger();
     Logger(const Location&);
     Logger(const std::string&, const Location&);
+    Logger(const Logger&) = delete;
     ~Logger();
     bool log();
     bool log(const std::string&);
