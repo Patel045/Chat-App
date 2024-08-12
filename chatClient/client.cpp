@@ -23,7 +23,7 @@ int main(){
         boost::asio::buffer(send_data)
     );
 
-    std::cout << "Data Sent : " << send_data.length() << "/" << size_sent << std::endl;
+    std::cout << "Data Sent : " << "/" << size_sent << send_data.length() << std::endl;
 
     //read from server
     boost::asio::streambuf recv_buffer;
