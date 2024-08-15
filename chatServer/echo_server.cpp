@@ -1,9 +1,9 @@
-#include "../utils/Logger.h"
-
 #include <iostream>
 #include <boost/asio.hpp>
 #include <thread>
 #include <memory>
+
+#include "../utils/Logger.h"
 
 void handle_client(boost::asio::ip::tcp::socket& socket){
     boost::asio::streambuf recv_buffer;
