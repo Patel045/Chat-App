@@ -36,6 +36,8 @@ void networkLibrary::Server::asyncServer::startAccept()
 void networkLibrary::Server::asyncServer::write_broadcast(std::string buf)
     // implement broadcast
 {
+    if(buf.back()!='\n') buf += '\n';
+    // std::cout << "Broadcast got msg "<<buf<<std::endl;
     auto _buf = boost::asio::buffer(buf);
     for(auto& _session : m_chat_sessions){
             boost::asio::
@@ -128,7 +130,8 @@ void networkLibrary::chatSession::read_continous(){
 
 networkLibrary::chatSession::~chatSession()
 {
-    std::cout << "Disconnecting IP(" << m_ip << ":" << m_port << ")" << std::endl;
+    std::cout << "Disconnecting IP(" << m_ip << ":" << m_port << ")" << " Username : " << m_name << std::endl;
+    m_serv.write_broadcast(std::string("Disconnecting "+m_name));
 }
 
 /*
@@ -150,9 +153,23 @@ networkLibrary::Client::asyncClient::asyncClient(boost::asio::io_context& _io_co
             // std::cout << "Inside async_connect lambda" << std::endl;
             if(ec){
                std::cout << "Error Occured while Connecting to the Server" << std::endl;
-            }else{
-                read_continous();
+            //    close_connection();
             }
+            // else{
+                // std::cout << "Invoking read" << std::endl;
+                // boost::asio::streambuf s_buffer;
+                // boost::system::error_code ec;
+                // boost::asio::read_until(m_socket,s_buffer,'\0',ec);
+                // if(ec){
+                //     std::cout << "Error while receiving first message from Server" << std::endl;
+                // }
+                // else{
+                //     std::string str_obs = boost::asio::buffer_cast<const char*> (s_buffer.data());
+                //     std::cout 
+                    // std::cout << "Invoking read_continous()" << std::endl;
+                    read_continous();
+                // }
+            // }
         });
 }
 
@@ -170,10 +187,11 @@ void networkLibrary::Client::asyncClient::read_continous()
                 m_socket.close();
             }
             else{
-                // std::cout << m_buffer.data() << std::endl;
-                std::cout.write(m_buffer.data(), length);
-                // m_buffer.clear();
-                m_buffer.erase(0, length);
+                while(m_buffer.back()=='\n') m_buffer.pop_back();
+                std::cout << m_buffer.data() << std::endl;
+                // std::cout.write(m_buffer.data(), length);
+                m_buffer.clear();
+                // m_buffer.erase(0, length);
                 read_continous();
             }
         }   
@@ -196,19 +214,15 @@ void networkLibrary::Client::asyncClient::write(std::string& buf)
     boost::asio::post(
         m_io_context,
         [this, buf](){
-            std::string buffer;
-            if(buf.back() != '\n'){
-                buffer = buf + '\n';
-            }
-            else{
-                buffer = buf;
-            }
+            std::string buffer = buf;
+            if(buffer.back()!='\n') buffer += '\n';
             boost::asio::async_write(
                 m_socket,
                 boost::asio::buffer(buffer),
                 [this](boost::system::error_code ec, int length){
                     if(ec){
                         std::cout << "Error writing to Server" <<std::endl;
+                        // close_connection();
                         m_socket.close();
                     }
                     else{
