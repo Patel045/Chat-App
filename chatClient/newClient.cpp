@@ -33,13 +33,9 @@ int main(int argc, char* argv[]){
 
     std::string clt_input;
     while(std::getline(std::cin, clt_input)){
-        // clt_input += "\n";
-        client.write(clt_input);
-        // std::cout << "Observed Input " << clt_input << std::endl;
-        // clt_input.clear();
+        if(!client.write(clt_input)) break;
     }
 
-    client.close_connection();
     t.join();
 
     return 0;
