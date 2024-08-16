@@ -31,11 +31,13 @@ private:
     boost::asio::ip::tcp::acceptor m_acceptor;
     void startAccept();
     std::set<std::shared_ptr<chatSession>> m_chat_sessions;
+    std::pair<std::string,std::string> parse(std::string&);
 public:
     friend class networkLibrary::chatSession;
     asyncServer(boost::asio::io_context &, unsigned int);
     void write_broadcast(std::string);
-    // void deliver(const std::shared_ptr<networkLibrary::chatSession>&, boost::asio::mutable_buffers_1&);
+    void write(const std::shared_ptr<networkLibrary::chatSession>, std::string);
+    void write(const std::shared_ptr<networkLibrary::chatSession>, boost::asio::mutable_buffers_1);
 };
 
 class networkLibrary::Client::asyncClient
@@ -51,8 +53,10 @@ private:
 public:
     std::string m_username;
     asyncClient(boost::asio::io_context&, std::string, unsigned int);
-    void write(std::string&);
+    bool write(std::string&);
+    bool write_now(std::string);
     void close_connection();
+    ~asyncClient();
 };
 
 class networkLibrary::chatSession : public std::enable_shared_from_this<networkLibrary::chatSession>
