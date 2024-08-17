@@ -1,5 +1,9 @@
 # Chat-App
 
+Chat-Room is a *multithreaded chat-room* application developed in C++ using the powerful *Boost.Asio* library. This project demonstrates how to create a robust, asynchronous server-client architecture that supports multiple chat sessions concurrently. The application is designed to handle real-time messaging efficiently across multiple clients.
+
+The server manages multiple client connections and facilitates the exchange of messages between them. Each client can send and receive messages to and from the chat room, with the server broadcasting messages to all connected clients, and the chat sesison receiving messages from the clients and forwarding the information to the server. The application architecture leverages the asynchronous I/O model provided by Boost.Asio, ensuring high performance and scalability.
+
 # Project Structure
 ```
  - chatClient/
@@ -19,17 +23,17 @@
 
 # Components
 
- - chatClient: The client module that communicates with the server.
- - chatServer: The server module that handles multiple clients asynchronously.
- - networkLibrary: A library encapsulating network communication logic.
- - utils: A utility module that provides logging capabilities across the application.
+ - **chatClient**: The client module that communicates with the server.
+ - **chatServer**: The server module that handles multiple clients asynchronously.
+ - **networkLibrary**: A library encapsulating network communication logic.
+ - **utils**: A utility module that provides logging capabilities across the application.
 
 # Requirements
 
  - C++17 or later
+ - A C++ compiler that supports C++17 (e.g., g++, clang++)
  - CMake 3.10 or higher
  - Git (for cloning the repository)
- - A C++ compiler that supports C++17 (e.g., g++, clang++)
 
 # Setup Instructions
 ## 1. Clone the Repository
