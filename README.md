@@ -2,6 +2,8 @@
 
 Chat-Room is a *multithreaded chat-room* application developed in C++ using the powerful *Boost.Asio* library. This project demonstrates how to create a robust, asynchronous server-client architecture that supports multiple chat sessions concurrently. The application is designed to handle real-time messaging efficiently across multiple clients.
 
+Documentation : https://patel045.github.io/Chat-App-Documentation/
+
 The server manages multiple client connections and facilitates the exchange of messages between them. Each client can send and receive messages to and from the chat room, with the server broadcasting messages to all connected clients, and the chat sesison receiving messages from the clients and forwarding the information to the server. The application architecture leverages the asynchronous I/O model provided by Boost.Asio, ensuring high performance and scalability.
 
 # Project Structure
