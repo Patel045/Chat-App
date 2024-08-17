@@ -3,15 +3,17 @@
 # Project Structure
 ```
  - chatClient/
-  - async_client.cpp         # Client implementation
+    - async_client.cpp         # Client implementation
+    - echo_client.cpp          # Use for Testing
  - chatServer/
-  - async_server.cpp         # Server implementation
+    - async_server.cpp         # Server implementation
+    - echo_server.cpp          # Use for Testing
  - networkLibrary/
-  - networkLibrary.h         # Network library header
-  - networkLibrary.cpp       # Network library implementation
+    - networkLibrary.h         # Network library header
+    - networkLibrary.cpp       # Network library implementation
  - utils/
-  - Logger.h                 # Logger utility header
-  - Logger.cpp               # Logger utility implementation
+    - Logger.h                 # Logger utility header
+    - Logger.cpp               # Logger utility implementation
  - CMakeLists.txt             # Root CMake configuration
 ```
 
