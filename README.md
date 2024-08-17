@@ -1,18 +1,19 @@
 # Chat-App
 
 # Project Structure
-
-- chatClient/
+```
+ - chatClient/
   - async_client.cpp         # Client implementation
-- chatServer/
+ - chatServer/
   - async_server.cpp         # Server implementation
-- networkLibrary/
+ - networkLibrary/
   - networkLibrary.h         # Network library header
   - networkLibrary.cpp       # Network library implementation
-- utils/
+ - utils/
   - Logger.h                 # Logger utility header
   - Logger.cpp               # Logger utility implementation
-- CMakeLists.txt             # Root CMake configuration
+ - CMakeLists.txt             # Root CMake configuration
+```
 
 # Components
 
@@ -33,14 +34,17 @@
 
 To clone this repository, use the following command:
 
+```
 git clone https://github.com/yourusername/ChatApplication.git
 cd ChatApplication
-
+```
 
 ## 2. Build the Project
 
 To build the project, follow these steps:
-```# Create a build directory
+
+```
+# Create a build directory
 mkdir build
 cd build
 
@@ -57,7 +61,7 @@ After building the project, you can run the chat server and client as follows:
 
 ### Server : 
 ```
-./chatServer/chatServer <PORT NUMBER>
+./chatServer/chatServer <SERVER PORT>
 ```
 
 ### Client :
@@ -69,9 +73,10 @@ After building the project, you can run the chat server and client as follows:
 
 To remove all build artifacts, you can clean the build directory:
 
+```
 cd build
 cmake --build . --target clean
-
+```
 
 # Contributing
 
