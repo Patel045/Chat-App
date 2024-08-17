@@ -19,10 +19,6 @@ int main(int argc, char* argv[]){
         std::cout << "Required - <Client> <Server-IPAddress> <Server-Port>" << std::endl;
         return 0;
     }
-    
-    // std::string username;
-    // std::cout << "Username : ";
-    // std::cin >> username;
 
     boost::asio::io_context clt_io_context;
     networkLibrary::Client::asyncClient client(clt_io_context, IPAddress, port);
