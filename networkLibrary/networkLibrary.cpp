@@ -44,7 +44,7 @@ void networkLibrary::Server::asyncServer::write(const std::shared_ptr<networkLib
             [this, &_session](boost::system::error_code ec, int size){
                 if(ec){
                     std::cout << "Error Sending Data : " << ec.message() << std::endl;
-                    m_chat_sessions.erase(_session);
+                    remove_session(_session);
                 }
                 else{
                     // std::cout << "Broadcast -> Sent Message to " << _session->m_name << std::endl;
@@ -64,9 +64,22 @@ void networkLibrary::Server::asyncServer::write_broadcast(std::string buf)
 {
     if(buf.back()!='\n') buf += '\n';
     auto _buf = boost::asio::buffer(buf);
+    std::lock_guard<std::mutex> lock(_server_mutex);
     for(auto& _session : m_chat_sessions){
         write(_session, _buf);
     }
+}
+
+void networkLibrary::Server::asyncServer::add_session(const std::shared_ptr<networkLibrary::chatSession> _session)
+{
+    std::lock_guard<std::mutex> lock(_server_mutex);
+    m_chat_sessions.insert(_session);
+}
+
+void networkLibrary::Server::asyncServer::remove_session(const std::shared_ptr<networkLibrary::chatSession> _session)
+{
+    std::lock_guard<std::mutex> lock(_server_mutex);
+    m_chat_sessions.erase(_session);
 }
 
 std::pair<std::string,std::string> networkLibrary::Server::asyncServer::parse(std::string &recv_message)
@@ -110,7 +123,7 @@ networkLibrary::chatSession::chatSession(boost::asio::ip::tcp::socket _socket, n
 
 void networkLibrary::chatSession::start()
 {
-    m_serv.m_chat_sessions.insert(shared_from_this());
+    m_serv.add_session(shared_from_this());
 
     auto self(shared_from_this());
     m_name = "New User";
@@ -126,7 +139,7 @@ void networkLibrary::chatSession::start()
                     {
         if(ec){
             std::cout << "Error Sending Data : " << ec.message() << std::endl;
-            m_serv.m_chat_sessions.erase(shared_from_this());
+            m_serv.remove_session(shared_from_this());
         }
         else{
             std::cout << "Asked IP(" << m_ip << ":" << m_port << ") for Username" << std::endl;
@@ -146,7 +159,7 @@ void networkLibrary::chatSession::read_continous(){
         {
         if(ec){
             std::cout << "Error Reading Data : " << ec.message() << std::endl;
-            m_serv.m_chat_sessions.erase(shared_from_this());
+            m_serv.remove_session(shared_from_this());
         }
         else{
             while(!m_buffer.empty() && m_buffer.back()=='\n') m_buffer.pop_back();

@@ -5,9 +5,9 @@
 #include <string>
 #include <set>
 #include <memory>
+#include <mutex>
+
 #include <boost/asio.hpp>
-#include <unistd.h>
-// #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace networkLibrary
@@ -32,6 +32,9 @@ private:
     void startAccept();
     std::set<std::shared_ptr<chatSession>> m_chat_sessions;
     std::pair<std::string,std::string> parse(std::string&);
+    std::mutex _server_mutex;
+    void add_session(const std::shared_ptr<networkLibrary::chatSession>);
+    void remove_session(const std::shared_ptr<networkLibrary::chatSession>);
 public:
     friend class networkLibrary::chatSession;
     asyncServer(boost::asio::io_context &, unsigned int);
