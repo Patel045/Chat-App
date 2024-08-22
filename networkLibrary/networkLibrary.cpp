@@ -11,9 +11,11 @@ networkLibrary::Server::asyncServer::asyncServer(boost::asio::io_context &io_con
           m_io_context,
           boost::asio::ip::tcp::endpoint(
               boost::asio::ip::tcp::v4(),
-              m_port))
+              m_port)),
+      server_log(Logger::Location::STDOUT)
 {
-    std::cout << "asyncServer(TCP/IP) started listening on Port : " << m_port << std::endl;
+    // std::cout << "asyncServer(TCP/IP) started listening on Port : " << m_port << std::endl;
+    server_log.log({"asyncServer(TCP/IP) started listening on Port : ",std::to_string(m_port)},std::string(" "));
     this->startAccept();
 }
 
@@ -43,11 +45,12 @@ void networkLibrary::Server::asyncServer::write(const std::shared_ptr<networkLib
             _buf, 
             [this, &_session](boost::system::error_code ec, int size){
                 if(ec){
-                    std::cout << "Error Sending Data : " << ec.message() << std::endl;
+                    // std::cout << "Error Sending Data : " << ec.message() << std::endl;
                     remove_session(_session);
+                    server_log.log({"Error Sending Data :", ec.message()}," ");
                 }
                 else{
-                    // std::cout << "Broadcast -> Sent Message to " << _session->m_name << std::endl;
+                    //// std::cout << "Broadcast -> Sent Message to " << _session->m_name << std::endl;
                 }
     });
 }
@@ -128,7 +131,8 @@ void networkLibrary::chatSession::start()
     auto self(shared_from_this());
     m_name = "New User";
 
-    std::cout << "Client connected IP(" << m_ip << ":" << m_port << ")" << std::endl;
+    // std::cout << "Client connected IP(" << m_ip << ":" << m_port << ")" << std::endl;
+    m_serv.server_log.log({std::string("Client connected IP("), m_ip, std::string(":"), std::to_string(m_port), std::string(")")}, std::string(" "));
 
     // Ask username //maybe add passwords later
     m_buffer = "Server asks Username : \n";
@@ -138,11 +142,13 @@ void networkLibrary::chatSession::start()
                     [this](boost::system::error_code ec, int size)
                     {
         if(ec){
-            std::cout << "Error Sending Data : " << ec.message() << std::endl;
+            // std::cout << "Error Sending Data : " << ec.message() << std::endl;
+            m_serv.server_log.log({"Error Sending Data :", ec.message()}," ");
             m_serv.remove_session(shared_from_this());
         }
         else{
-            std::cout << "Asked IP(" << m_ip << ":" << m_port << ") for Username" << std::endl;
+            // std::cout << "Asked IP(" << m_ip << ":" << m_port << ") for Username" << std::endl;
+            m_serv.server_log.log({"Asked IP(", m_ip, ":", std::to_string(m_port), std::string(") for Username")},std::string(" "));
             read_continous();
         } });
     m_buffer.clear();
@@ -158,14 +164,16 @@ void networkLibrary::chatSession::read_continous(){
             [this, self](boost::system::error_code ec, int size)
         {
         if(ec){
-            std::cout << "Error Reading Data : " << ec.message() << std::endl;
+            // std::cout << "Error Reading Data : " << ec.message() << std::endl;
+            m_serv.server_log.log({"Error Reading Data : ", ec.message()}," ");
             m_serv.remove_session(shared_from_this());
         }
         else{
             while(!m_buffer.empty() && m_buffer.back()=='\n') m_buffer.pop_back();
             if(m_name == "New User"){
                 m_name = m_buffer;
-                std::cout << "IP(" << m_ip << ":" << m_port << ") -> Username : " << m_name << std::endl;
+                // std::cout << "IP(" << m_ip << ":" << m_port << ") -> Username : " << m_name << std::endl;
+                m_serv.server_log.log({std::string("IP("), m_ip, std::string(":"), std::to_string(m_port), std::string(") -> Username :"), m_name}," ");
                 m_serv.write_broadcast(std::string (m_name+" joined the Server"));
             }
             else if(m_buffer[0]=='\\'){
@@ -178,8 +186,9 @@ void networkLibrary::chatSession::read_continous(){
                         5. \quit
                 */
                 std::string message;
-                std::cout << m_name << " asked for Special Command " << m_buffer << std::endl;
-                
+                // std::cout << m_name << " asked for Special Command " << m_buffer << std::endl;
+                m_serv.server_log.log({m_name, std::string("asked for Special Command"), m_buffer}," ");
+
                 if(m_buffer == "\\help"){
                     message = 
                     "Client Commands - \n"
@@ -217,7 +226,8 @@ void networkLibrary::chatSession::read_continous(){
                             + std::string(" to ") 
                             + _new_name;
                     m_name = _new_name;
-                    std::cout << message <<std::endl;
+                    // std::cout << message <<std::endl;
+                    m_serv.server_log.log(message);
                     m_serv.write_broadcast(message);
                 } 
                 else if(m_buffer.substr(0,4) == "\\msg"){
@@ -256,7 +266,8 @@ void networkLibrary::chatSession::read_continous(){
             }
             else{
                 m_buffer = m_name + " : " + m_buffer;
-                std::cout << m_buffer << std::endl;
+                // std::cout << m_buffer << std::endl;
+                m_serv.server_log.log(m_buffer);
                 m_serv.write_broadcast(m_buffer);
             }
             m_buffer.clear();
@@ -266,7 +277,8 @@ void networkLibrary::chatSession::read_continous(){
 
 networkLibrary::chatSession::~chatSession()
 {
-    std::cout << "Disconnected IP(" << m_ip << ":" << m_port << ")" << " Username : " << m_name << std::endl;
+    // std::cout << "Disconnected IP(" << m_ip << ":" << m_port << ")" << " Username : " << m_name << std::endl;
+    m_serv.server_log.log({"Disconnected IP(",m_ip,":",std::to_string(m_port), ") Username :", m_name},std::string(" "));
     m_serv.write_broadcast(std::string("Disconnected "+m_name));
 }
 

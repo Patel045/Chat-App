@@ -1,6 +1,8 @@
 #ifndef NETWORK_LIBRARY_H
 #define NETWORK_LIBRARY_H
 
+
+#include "../utils/Logger.h"
 #include <iostream>
 #include <string>
 #include <set>
@@ -63,6 +65,7 @@ private:
     boost::asio::ip::tcp::acceptor m_acceptor; ///< Acceptor object for accepting new connections.
     std::set<std::shared_ptr<chatSession>> m_chat_sessions; ///< Set of active chat sessions.
     std::mutex _server_mutex; ///< Mutex for thread-safe operations on the set of chat essions.
+    Logger server_log;
 
     /**
      * @brief Starts accepting new chat sessions.
