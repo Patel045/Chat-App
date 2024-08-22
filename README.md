@@ -43,8 +43,8 @@ The server manages multiple client connections and facilitates the exchange of m
 To clone this repository, use the following command:
 
 ```
-git clone https://github.com/yourusername/ChatApplication.git
-cd ChatApplication
+git clone https://github.com/Patel045/Chat-App.git
+cd Chat-App
 ```
 
 ## 2. Build the Project
