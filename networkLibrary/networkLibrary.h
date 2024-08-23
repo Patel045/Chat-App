@@ -184,7 +184,7 @@ class networkLibrary::chatSession : public std::enable_shared_from_this<networkL
 {
 private:
     networkLibrary::Server::asyncServer &m_serv; ///< Reference to the associated server.
-    std::string m_buffer; ///< Buffer for storing received data.
+    // std::string m_buffer; ///< Buffer for storing received data.
     boost::asio::ip::tcp::socket m_socket; ///< Socket for communication.
     std::string m_ip; ///< Client's IP address.
     unsigned int m_port; ///< Client's port number.

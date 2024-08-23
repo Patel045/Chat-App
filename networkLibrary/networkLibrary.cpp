@@ -135,11 +135,13 @@ void networkLibrary::chatSession::start()
     m_serv.server_log.log({std::string("Client connected IP("), m_ip, std::string(":"), std::to_string(m_port), std::string(")")}, std::string(" "));
 
     // Ask username //maybe add passwords later
-    m_buffer = "Server asks Username : \n";
+
+    std::string* temp_buffer = new std::string("Server asks Username : \n");
+    // m_buffer = "Server asks Username : \n";
     
     boost::asio::
-        async_write(m_socket, boost::asio::dynamic_buffer(m_buffer),
-                    [this](boost::system::error_code ec, int size)
+        async_write(m_socket, boost::asio::dynamic_buffer(*temp_buffer),
+                    [this, temp_buffer](boost::system::error_code ec, int size)
                     {
         if(ec){
             // std::cout << "Error Sending Data : " << ec.message() << std::endl;
@@ -150,18 +152,20 @@ void networkLibrary::chatSession::start()
             // std::cout << "Asked IP(" << m_ip << ":" << m_port << ") for Username" << std::endl;
             m_serv.server_log.log({"Asked IP(", m_ip, ":", std::to_string(m_port), std::string(") for Username")},std::string(" "));
             read_continous();
-        } });
-    m_buffer.clear();
+        } 
+            delete temp_buffer;
+        });
 }
 
 void networkLibrary::chatSession::read_continous(){
     auto self(shared_from_this());
+    std::string* temp_buffer = new std::string;
     boost::asio::
         async_read_until(
             m_socket, 
-            boost::asio::dynamic_buffer(m_buffer), 
+            boost::asio::dynamic_buffer(*temp_buffer), 
             "\n",
-            [this, self](boost::system::error_code ec, int size)
+            [this, self, temp_buffer](boost::system::error_code ec, int size)
         {
         if(ec){
             // std::cout << "Error Reading Data : " << ec.message() << std::endl;
@@ -169,14 +173,15 @@ void networkLibrary::chatSession::read_continous(){
             m_serv.remove_session(shared_from_this());
         }
         else{
-            while(!m_buffer.empty() && m_buffer.back()=='\n') m_buffer.pop_back();
+            read_continous();
+            while(!temp_buffer->empty() && temp_buffer->back()=='\n') temp_buffer->pop_back();
             if(m_name == "New User"){
-                m_name = m_buffer;
+                m_name = *temp_buffer;
                 // std::cout << "IP(" << m_ip << ":" << m_port << ") -> Username : " << m_name << std::endl;
                 m_serv.server_log.log({std::string("IP("), m_ip, std::string(":"), std::to_string(m_port), std::string(") -> Username :"), m_name}," ");
                 m_serv.write_broadcast(std::string (m_name+" joined the Server"));
             }
-            else if(m_buffer[0]=='\\'){
+            else if(temp_buffer->front()=='\\'){
                 /*
                     Client Commands - 
                         1. \help
@@ -187,9 +192,9 @@ void networkLibrary::chatSession::read_continous(){
                 */
                 std::string message;
                 // std::cout << m_name << " asked for Special Command " << m_buffer << std::endl;
-                m_serv.server_log.log({m_name, std::string("asked for Special Command"), m_buffer}," ");
+                m_serv.server_log.log({m_name, std::string("asked for Special Command"), *temp_buffer}," ");
 
-                if(m_buffer == "\\help"){
+                if(*temp_buffer == "\\help"){
                     message = 
                     "Client Commands - \n"
                     "    1. \\help            : List out Client Commands\n"
@@ -202,7 +207,7 @@ void networkLibrary::chatSession::read_continous(){
                     std::shared_ptr<networkLibrary::chatSession> shared_session_ptr = self;
                     m_serv.write(shared_session_ptr, message);
                 }
-                else if(m_buffer == "\\list"){
+                else if(*temp_buffer == "\\list"){
                     message = "Clients in the Chat-Room:-\n";
                     int cnt = 0;
                     for(auto& _session: m_serv.m_chat_sessions){
@@ -213,10 +218,10 @@ void networkLibrary::chatSession::read_continous(){
                     std::shared_ptr<networkLibrary::chatSession> shared_session_ptr = self;
                     m_serv.write(shared_session_ptr, message);
                 }
-                else if(m_buffer.substr(0,12) == "\\name_change"){
+                else if(temp_buffer->substr(0,12) == "\\name_change"){
                     std::string _new_name;
                     bool in = false;
-                    for(auto c: m_buffer){
+                    for(auto c: *temp_buffer){
                         if(c=='}') in =false;
                         if(in) _new_name += c;
                         if(c=='{') in = true;
@@ -230,12 +235,12 @@ void networkLibrary::chatSession::read_continous(){
                     m_serv.server_log.log(message);
                     m_serv.write_broadcast(message);
                 } 
-                else if(m_buffer.substr(0,4) == "\\msg"){
+                else if(temp_buffer->substr(0,4) == "\\msg"){
                     std::string _send_to;
                     std::string _message;
                     bool in = false;
                     int cntr = 0;
-                    for(auto c: m_buffer){
+                    for(auto c: *temp_buffer){
                         if(c=='}'){
                             in =false;
                             ++cntr;
@@ -254,7 +259,7 @@ void networkLibrary::chatSession::read_continous(){
                         }
                     }
                 }
-                else if(m_buffer == "\\quit"){
+                else if(*temp_buffer == "\\quit"){
                     m_serv.m_chat_sessions.erase(self);
                     return;
                 }
@@ -265,14 +270,16 @@ void networkLibrary::chatSession::read_continous(){
                 }
             }
             else{
-                m_buffer = m_name + " : " + m_buffer;
+                *temp_buffer = m_name + " : " + *temp_buffer;
                 // std::cout << m_buffer << std::endl;
-                m_serv.server_log.log(m_buffer);
-                m_serv.write_broadcast(m_buffer);
+                m_serv.server_log.log(*temp_buffer);
+                m_serv.write_broadcast(*temp_buffer);
             }
-            m_buffer.clear();
-            read_continous();
-        } });
+            // m_buffer.clear();
+            // read_continous();
+        } 
+            delete temp_buffer;
+        });
 }
 
 networkLibrary::chatSession::~chatSession()
