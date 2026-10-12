@@ -33,9 +33,9 @@ void networkLibrary::Server::asyncServer::startAccept()
 
 }
 
-void networkLibrary::Server::asyncServer::write(const std::shared_ptr<networkLibrary::chatSession> _session, boost::asio::mutable_buffers_1 _buf)
+void networkLibrary::Server::asyncServer::write(const std::shared_ptr<networkLibrary::chatSession> _session, boost::asio::mutable_buffer _buf)
 {
-    char* buffer_ptr = boost::asio::buffer_cast<char*>(_buf);   
+    char* buffer_ptr = static_cast<char*>(_buf.data());   
     int sz = _buf.size();
     if(buffer_ptr[sz-1]!='\n') _buf += '\n';
     
@@ -58,7 +58,7 @@ void networkLibrary::Server::asyncServer::write(const std::shared_ptr<networkLib
 void networkLibrary::Server::asyncServer::write(const std::shared_ptr<networkLibrary::chatSession> _session, std::string buf)
 {
     if(buf.back()!='\n') buf += '\n';
-    boost::asio::mutable_buffers_1 _buf = boost::asio::buffer(buf);
+    boost::asio::mutable_buffer _buf = boost::asio::buffer(buf);
     write(_session, _buf);
 }
 

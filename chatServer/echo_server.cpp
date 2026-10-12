@@ -16,7 +16,7 @@ void handle_client(boost::asio::ip::tcp::socket& socket){
     }
 
     //Echo data back to client
-    std::string message = boost::asio::buffer_cast<const char*> (recv_buffer.data());
+    std::string message(boost::asio::buffers_begin(recv_buffer.data()),boost::asio::buffers_end(recv_buffer.data()));
     boost::system::error_code send_error;
     boost::asio::write(
         socket,
@@ -64,7 +64,7 @@ int main(){
         }
 
         //Echo data back to client
-        std::string message = boost::asio::buffer_cast<const char*> (recv_buffer.data());
+        std::string message(boost::asio::buffers_begin(recv_buffer.data()),boost::asio::buffers_end(recv_buffer.data()));
         boost::system::error_code send_error;
         boost::asio::write(
             socket,

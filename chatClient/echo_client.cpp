@@ -33,7 +33,7 @@ int main(){
         std::cout << "Error Reading Data : " << recv_error.message() << std::endl;
     }
     else{
-        std::string message = boost::asio::buffer_cast<const char*> (recv_buffer.data());
+        std::string message(boost::asio::buffers_begin(recv_buffer.data()),boost::asio::buffers_end(recv_buffer.data()));
         std::cout << message << std::endl;
     }
     boost::system::error_code clt_error;

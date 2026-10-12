@@ -120,7 +120,7 @@ public:
      * @param session Shared Pointer to the chat session to send the buffer to.
      * @param buffer The buffer to send.
      */
-    void write(const std::shared_ptr<networkLibrary::chatSession> session, boost::asio::mutable_buffers_1 buffer);
+    void write(const std::shared_ptr<networkLibrary::chatSession> session, boost::asio::mutable_buffer buffer);
 };
 
 /**
