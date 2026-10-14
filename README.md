@@ -6,6 +6,19 @@ Documentation : https://patel045.github.io/Chat-App-Documentation/
 
 The server manages multiple client connections and facilitates the exchange of messages between them. Each client can send and receive messages to and from the chat room, with the server broadcasting messages to all connected clients, and the chat sesison receiving messages from the clients and forwarding the information to the server. The application architecture leverages the asynchronous I/O model provided by Boost.Asio, ensuring high performance and scalability.
 
+# ToDo
+ - [ ] cmake to resolve includes without absolute filepath
+ - [ ] create a venv for boost dependencies to avoid adding in system path
+ - [ ] fix c++ version
+ - [ ] fix special commands
+ - [ ] reformat the send and recive chats. 
+ - [ ] not affect input line if new chat comes in
+ - [ ] formatter and cppcheck
+ - [ ] asan 
+ - [ ] tsan
+ - [ ] quill logging
+ - [ ] unit tests and integration if necessary
+
 # Project Structure
 ```
  - chatClient/
@@ -36,6 +49,7 @@ The server manages multiple client connections and facilitates the exchange of m
  - A C++ compiler that supports C++17 (e.g., g++, clang++)
  - CMake 3.10 or higher
  - Git (for cloning the repository)
+ - Boost (version?)
 
 # Setup Instructions
 ## 1. Clone the Repository
